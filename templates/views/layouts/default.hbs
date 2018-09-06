@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>阿仁加速器两周年运动会战况直播</title>
+	<meta name="Description" content="阿仁运动会两周年运动会战况激烈，比赛实时更新中">
+	<link rel="shortcut icon" href="{{ data.prefix }}/favicon.ico" type="image/x-icon">
+	<link href="{{ data.prefix }}/styles/site.css" rel="stylesheet">
+
+	<meta http-equiv="content-type" content="text/html">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no,width=device-width"
+	/>
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="app-mobile-web-app-capable" content="yes" />
+	<meta name="app-mobile-web-app-status-bar-style" content="black-translucent" /> 
+	{{!--
+	HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries //- Safely remove this block if you are not targeting
+	IE8 --}}
+	<!--[if lt IE 9]>
+			<script src="//cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv.js"></script>
+			<script src="//cdn.jsdelivr.net/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	<script src="{{ data.prefix }}/js/jquery/jquery-1.11.3.min.js"></script>
+	<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+</head>
+
+<body>
+	<div id="body">
+		<!--
+				Flash messages allow you to display once-off status messages to users, e.g. form
+				validation errors, success messages, etc
+			-->
+		{{#if messages}}
+		<div id="flash-messages" class="container">
+			{{#if messages.info}}
+			<div class="alert alert-info">
+				{{{flashMessages messages.info}}}
+			</div>
+			{{/if}} {{#if messages.success}}
+			<div class="alert alert-success">
+				{{{flashMessages messages.success}}}
+			</div>
+			{{/if}} {{#if messages.warning}}
+			<div class="alert alert-warning">
+				{{{flashMessages messages.warning}}}
+			</div>
+			{{/if}} {{#if messages.error}}
+			<div class="alert alert-danger">
+				{{{flashMessages messages.error}}}
+			</div>
+			{{/if}}
+		</div>
+		{{/if}}
+		<!-- The content block should contain the body of your template's content-->
+		{{{body}}}
+	</div>
+
+	<script>
+		var wxParam = {};
+		var wx_share = function (param, url) {
+			$.ajax({
+				url: "{{ data.prefix }}/get-signature",
+				type: "GET",
+				data: {
+					"url": url
+				},
+				success: function (data) {
+					wxParam = param;
+
+					console.log(data);
+
+					// 分享配置
+					wx.config({
+						debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+						appId: data.appId, // 必填，企业号的唯一标识
+						timestamp: data.timestamp, // 必填，生成签名的时间戳
+						nonceStr: data.nonceStr, // 必填，生成签名的随机串
+						signature: data.signature,// 必填，签名，见附录1
+						jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+					});
+				},
+				error: function (res) { }
+			})
+		}
+
+		wx_share({
+			title: "阿仁加速器两周年运动会战况直播",
+			desc: "阿仁两周年运动会战况激烈，比分实时更新中",
+			link: window.location.href,
+			imgUrl: "https://www.arena-x.cn/h5/sports/images/share.jpg",
+			type: "link",
+			successFn: function () {
+				//alert("分享成功！感谢支持")
+			},
+			cancelFn: function () {
+				// 用户取消分享后执行的回调函数
+			}
+		}, window.location.href.split('#')[0]);
+
+		wx.ready(function () {
+			//分享到朋友圈
+			wx.onMenuShareTimeline({
+				title: wxParam.title,
+				link: wxParam.link,
+				imgUrl: wxParam.imgUrl,
+				success: function () {
+					if (wxParam.successFn) { wxParam.successFn(); }
+				}, cancel: function () {
+					if (wxParam.cancelFn) { wxParam.cancelFn(); }
+				}
+			});
+
+			//分享给朋友
+			wx.onMenuShareAppMessage({
+				title: wxParam.title,
+				desc: wxParam.desc,
+				link: wxParam.link,
+				imgUrl: wxParam.imgUrl,
+				type: wxParam.type,
+				dataUrl: wxParam.dataUrl,
+				success: function () {
+					if (wxParam.successFn) { wxParam.successFn(); }
+				}, cancel: function () {
+					if (wxParam.cancelFn) { wxParam.cancelFn(); }
+				}
+			});
+
+			//分享到QQ
+			wx.onMenuShareQQ({
+				title: wxParam.title,
+				desc: wxParam.desc,
+				link: wxParam.link,
+				imgUrl: wxParam.imgUrl,
+				success: function () {
+					if (wxParam.successFn) { wxParam.successFn(); }
+				}, cancel: function () {
+					if (wxParam.cancelFn) { wxParam.cancelFn(); }
+				}
+			});
+
+			//分享到腾讯微博
+			wx.onMenuShareWeibo({
+				title: wxParam.title,
+				desc: wxParam.desc,
+				link: wxParam.link,
+				imgUrl: wxParam.imgUrl,
+				success: function () {
+					if (wxParam.successFn) { wxParam.successFn(); }
+				}, cancel: function () {
+					if (wxParam.cancelFn) { wxParam.cancelFn(); }
+				}
+			});
+
+			//分享到QQ空间
+			wx.onMenuShareQZone({
+				title: wxParam.title,
+				desc: wxParam.desc,
+				link: wxParam.link,
+				imgUrl: wxParam.imgUrl,
+				success: function () {
+					if (wxParam.successFn) { wxParam.successFn(); }
+				}, cancel: function () {
+					if (wxParam.cancelFn) { wxParam.cancelFn(); }
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,115 @@
+{{!< default}}
+{{!-- <p><a href="/keystone/signin" style="margin-right: 10px" class="btn btn-lg btn-primary">Sign in</a> to use the Admin UI.</p> --}}
+<div class="header">
+	<img src="{{ data.prefix }}/images/sportTit.png" />
+	<div class="main-layout"><span class="tatal-score y-team"><strong id="yT-tatal">--</strong><i class="fen"></i></span><span class="tatal-score b-team"><strong id="bT-tatal">--</strong><i class="fen"></i></span></div>
+</div>
+<div class="main-layout">
+	<ul class="game-info clearfix">
+		<li class="y-team-info" id="yellowTeam"></li>
+		<li class="b-team-info" id="blueTeam"></li>
+	</ul>
+</div>
+
+<script>
+	$(function(){
+		let yellowParam={};
+		let blueParam={};
+		setTimeout(function(){
+			const nowHeight=$(".header").height()+20;
+			$(".game-info").css("paddingTop",nowHeight);
+		},100);
+		function getSportIcon(sport){
+			let sportIcon='';
+			switch(sport)
+			{
+			case 'zq':
+				sportIcon='<i class="icon iconfont icon-zuqiu-copy"></i>';
+			break;
+			case 'ymq':
+				sportIcon='<i class="icon iconfont icon-yumaoqiu"></i>';
+			break;
+			case 'sj':
+				sportIcon='<i class="icon iconfont icon-icon-test"></i>';
+			break;
+			case 'zxc':
+				sportIcon='<i class="icon iconfont icon-tiyu-zihangche"></i>';
+			break;
+			case 'ppq':
+				sportIcon='<i class="icon iconfont icon-pingpangqiu"></i>';
+			break;
+			case 'fb':
+				sportIcon='<i class="icon iconfont icon-feibiao4"></i>';
+			break;
+			case 'trx':
+				sportIcon='<i class="icon iconfont icon-jianshenyuqie"></i>';
+			break;
+			case 'zbw':
+				sportIcon='<i class="icon iconfont icon-wudao"></i>';
+			break;
+			case 'ms':
+				sportIcon='<i class="icon iconfont icon-mashu"></i>';
+			break;
+			default:
+			
+			}
+			return sportIcon;
+		}
+		function getGameInfo(){
+			$.ajax({
+				url:"{{ data.prefix }}/api/getinfo",
+				type:"get",
+				dataType:"json",
+				success:function(str){
+					if(str){
+						let yellowHtml="";
+						let blueHtml="";
+						let yTtatal=0;
+						let bTtatal=0;
+						for(let i=0;i<str.length;i++){
+							let nowSport=getSportIcon(str[i].sport);
+							if(str[i].team==="yellow"){
+								yTtatal+=Number(str[i].score);
+								if(nowSport && str[i].name && str[i].score){
+									let isNewClass='';
+									if(!Boolean(yellowParam[str[i]._id])){
+										yellowParam[str[i]._id]=str[i].score;
+										isNewClass=' isNew delay-'+i;
+									}
+									let isNewScore='';
+									if(yellowParam[str[i]._id]!==str[i].score){
+										isNewScore='<i class="newScore"><b>'+str[i].newscore+'</b></i>';
+										yellowParam[str[i]._id]=str[i].score;
+									}
+									
+									yellowHtml+='<span class="active'+isNewClass+'"><strong>'+nowSport+str[i].name+' '+str[i].score+'分</strong>'+isNewScore+'</span>';
+								}
+							}else{
+								bTtatal+=Number(str[i].score);
+								if(nowSport && str[i].name && str[i].score){
+									let isNewClass='';
+									if(!Boolean(blueParam[str[i]._id])){
+										blueParam[str[i]._id]=str[i].score;
+										isNewClass=' isNew delay-'+i;
+									}
+									let isNewScore='';
+									if(blueParam[str[i]._id]!==str[i].score){
+										isNewScore='<i class="newScore"><b>'+str[i].newscore+'</b></i>';
+										blueParam[str[i]._id]=str[i].score;
+									}
+									blueHtml+='<span class="active'+isNewClass+'"><strong>'+nowSport+str[i].name+' '+str[i].score+'分</strong>'+isNewScore+'</span>';
+								}
+							}
+						}
+						$("#yT-tatal").html(yTtatal);
+						$("#bT-tatal").html(bTtatal);
+						$("#yellowTeam").html(yellowHtml);
+						$("#blueTeam").html(blueHtml);
+					}
+				}	
+			})
+		}
+		setInterval(function(){getGameInfo()},5000);
+		getGameInfo();
+	})
+</script>

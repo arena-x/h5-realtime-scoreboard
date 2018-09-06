@@ -1,0 +1,101 @@
+{{!< default}}
+{{!-- <p><a href="/keystone/signin" style="margin-right: 10px" class="btn btn-lg btn-primary">Sign in</a> to use the Admin UI.</p> --}}
+<div class="header">
+	<img src="{{ data.prefix }}/images/sportTit.png" />
+	<div class="big-font">个人排行榜</div>
+</div>
+<div class="main-layout" id="mainLayout">
+	<div id="mainLayout">
+		<div class="personal-info thead"><span>排名</span><span>姓名</span><span>得分</span><span>变化</span></div>
+		<ul class="game-info-personal clearfix" id="personalBox">
+
+		</ul>
+	</div>
+</div>
+
+<script>
+	$(function(){
+		let count=0;
+		setTimeout(function(){
+			const nowHeight=$(".header").height()+20;
+			$("#mainLayout").css("paddingTop",nowHeight);
+		},100);
+		// 合并对象
+		function extend(target, source) { for (var obj in source) {
+			target[obj] = source[obj];
+			} return target;
+		}
+		let scroeArr=[];
+		function getGameInfo(){
+			$.ajax({
+				url:"{{ data.prefix }}/api/getinfo",
+				type:"get",
+				dataType:"json",
+				success:function(str){
+					// 想将之前数据重置
+					if(Boolean(scroeArr)){
+						scroeArr.forEach((item,index)=>{
+							item.score=0;
+						})
+					}
+					let personalParam={};
+					if(Boolean(str)){
+						let personalHtml="";
+						for(let i=0;i<str.length;i++){
+							if(str[i].sport && str[i].name && str[i].score){
+								let isNew=true;
+								for(var j=0;j<scroeArr.length;j++){
+									if(scroeArr[j].name==str[i].name){
+										scroeArr[j].score+=Number(str[i].score);
+										isNew=false;
+										break;
+									}
+								}
+								if(isNew){
+									scroeArr.push({
+										score:str[i].score,
+										team:str[i].team,
+										name:str[i].name,
+										rank:0
+									})
+								}
+							}
+						}
+						//比较器
+						function compare(property){
+							return function(obj1,obj2){
+								let value1 = obj1[property];
+								let value2 = obj2[property];
+								return value2 - value1;     // 升序
+							}
+						}
+						let newArr=scroeArr.sort(compare("score"));
+						newArr.forEach((item,index)=>{
+							let changeRank="--";
+							let rankClass="";
+							if(count>0){
+								if(item.rank!=index+1){
+									const nowRank=index+1-item.rank;
+									if(nowRank>0){
+										changeRank="－"+nowRank;
+										rankClass="downStyle";
+									}else{
+										changeRank="＋"+Math.abs(nowRank);
+										rankClass="upStyle";
+									}
+								}
+							}
+							item.rank=index+1;
+							let nowRankIndex=(index<3)?'<i class="icon iconfont icon-cnlonghubang i-'+index+'"></i>':index+1;
+							personalHtml+='<li class="personal-info team-'+item.team+'"><span>'+nowRankIndex+'</span><span>'+item.name+'</span><span>'+item.score+'</span><span class="'+rankClass+'">'+changeRank+'</li>';
+						})
+						$("#personalBox").html(personalHtml);
+						count++;
+					}
+				}	
+			})
+		}
+		setInterval(function(){getGameInfo()},30000);
+		getGameInfo();
+	})
+</script>
